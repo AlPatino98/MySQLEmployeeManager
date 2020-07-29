@@ -94,7 +94,7 @@ function addRole(){
   inquirer 
   .prompt([
     {
-      name: "role_name",
+      name: "title",
       type: "input",
       message: "What would you like the name of the new role to be?"
     },
@@ -104,18 +104,18 @@ function addRole(){
       message: "How much is the salary for this role?"
     },
     {
-      name: "dep_id",
+      name: "department_id",
       type: "input",
-      message: "What what is the id of this department?"
+      message: "What what is the id for the department of this rolenode employeeTracker.js?"
     }
   ])
   .then(function(answer) {
     connection.query(
         "INSERT INTO role SET ?",
         {
-        title: answer.role_name,
+        title: answer.title,
         salary: answer.salary,
-        departmnet_id: answer.dep_id
+        departmnet_id: answer.departmnet_id
         },
         function(err) {
           if (err) throw err;
@@ -199,7 +199,7 @@ function viewDepartment(){
     if (err) throw err;
 
     // Log all results of the SELECT statement
-    console.log(res);
+    console.table(res);
     connection.end();
   });
 };
@@ -209,7 +209,7 @@ function viewRole(){
     if (err) throw err;
 
     // Log all results of the SELECT statement
-    console.log(res);
+    console.table(res);
     connection.end();
   });
 };
@@ -219,7 +219,7 @@ function viewEmployee(){
     if (err) throw err;
 
     // Log all results of the SELECT statement
-    console.log(res);
+    console.table(res);
     connection.end();
   });
 }
@@ -235,8 +235,8 @@ function update() {
         choices: function() {
           var choiceArray = [];
           for (var i = 0; i < results.length; i++) {
-            choiceArray.push(results[i].first_name),
-            choiceArray.push(results[i].last_name)
+            choiceArray.push(results[i].first_name)
+
             ;
           }
           return choiceArray;
@@ -249,11 +249,43 @@ function update() {
         message:"What would you like to update?"
       }
     ])
-    .then(function(answer){
+    .then(function(answer) {
+      // get the information of the chosen item
       var chosenItem;
       for (var i = 0; i < results.length; i++) {
         if (results[i].item_name === answer.choice) {
           chosenItem = results[i];
         }
       }
-    
+
+      // determine if bid was high enough
+      
+        // bid was high enough, so update db, let the user know, and start over
+        connection.query(
+          "UPDATE employee SET ? WHERE ?",
+          [
+            {
+              first_name: answer.bid
+            },
+            {
+              last_name: chosenItem.id
+            },
+            {
+              role: answer.bid
+            },
+            {
+              manager: answer.bid
+            }
+          ],
+          function(error) {
+            if (error) throw err;
+            console.log("Bid placed successfully!");
+            start();
+          }
+        );
+      
+      
+    });
+});
+}
+
